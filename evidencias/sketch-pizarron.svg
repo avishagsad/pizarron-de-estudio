@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Sketch del Pizarrón de estudio</title>
+  <desc id="desc">Diseño de una pantalla de estudio con un conversor a la izquierda y notas adhesivas por categoría a la derecha, en lavanda, rosa y coral.</desc>
+  <defs>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#e9e1f1" stroke-width="1"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#594d66" flood-opacity=".12"/></filter>
+    <style>
+      .sans{font-family:Arial,Helvetica,sans-serif}.serif{font-family:Georgia,'Times New Roman',serif}.ink{fill:#332a3c}.muted{fill:#81758b}.label{font-size:13px;font-weight:700;letter-spacing:1.5px}.small{font-size:14px}.body{font-size:16px}.title{font-size:54px;font-weight:400;letter-spacing:-2px}
+    </style>
+  </defs>
+  <rect width="1440" height="1000" fill="#fbf8fc"/><rect width="1440" height="1000" fill="url(#grid)" opacity=".42"/>
+  <circle cx="1320" cy="70" r="100" fill="#f6c5d0" opacity=".42"/><circle cx="95" cy="890" r="130" fill="#d9c8f2" opacity=".42"/>
+  <rect x="70" y="48" width="1300" height="904" rx="30" fill="#fffdfd" stroke="#eee5f2" filter="url(#shadow)"/>
+  <path d="M70 78a30 30 0 0 1 30-30h1240a30 30 0 0 1 30 30v112H70z" fill="#f3eafa"/>
+  <circle cx="111" cy="91" r="8" fill="#ef8fa2"/><circle cx="139" cy="91" r="8" fill="#eead8c"/><circle cx="167" cy="91" r="8" fill="#b6a0d7"/>
+  <text x="110" y="151" class="serif ink title">Pizarrón de estudio</text><text x="112" y="178" class="sans muted small">un rincón para pensar, anotar y resolver</text>
+  <rect x="1110" y="120" width="214" height="38" rx="19" fill="#fff" stroke="#e6d9ef"/><circle cx="1132" cy="139" r="5" fill="#d899ac"/><text x="1147" y="144" class="sans muted small">tu espacio creativo</text>
+  <!-- converter -->
+  <rect x="110" y="220" width="360" height="650" rx="24" fill="#f8f3fc" stroke="#e8def1"/>
+  <circle cx="424" cy="259" r="21" fill="#f6d2da"/><text x="415" y="266" class="sans ink body">↗</text>
+  <text x="142" y="266" class="serif ink" font-size="30">Conversor</text><text x="142" y="294" class="sans muted small">Las cuentas también van acá.</text>
+  <text x="142" y="345" class="sans muted label">TIPO DE CONVERSIÓN</text>
+  <rect x="142" y="362" width="296" height="50" rx="12" fill="#fff" stroke="#e4d8ed"/><text x="160" y="393" class="sans ink body">Longitud</text><text x="408" y="393" class="sans muted body">⌄</text>
+  <text x="142" y="454" class="sans muted label">VALOR</text><rect x="142" y="470" width="296" height="54" rx="12" fill="#fff" stroke="#e4d8ed"/><text x="160" y="504" class="sans muted body">12</text>
+  <text x="142" y="567" class="sans muted label">DE</text><rect x="142" y="583" width="137" height="50" rx="12" fill="#fff" stroke="#e4d8ed"/><text x="157" y="614" class="sans ink small">metros</text><text x="257" y="614" class="sans muted small">⌄</text>
+  <path d="M295 608h24m-7-7 7 7-7 7" stroke="#bd91bc" stroke-width="2" fill="none"/>
+  <text x="338" y="567" class="sans muted label">A</text><rect x="338" y="583" width="100" height="50" rx="12" fill="#fff" stroke="#e4d8ed"/><text x="352" y="614" class="sans ink small">cm</text><text x="417" y="614" class="sans muted small">⌄</text>
+  <rect x="142" y="660" width="296" height="52" rx="14" fill="#b69acb"/><text x="251" y="693" class="sans" fill="#fff" font-size="16" font-weight="700">Convertir ✦</text>
+  <rect x="142" y="735" width="296" height="93" rx="16" fill="#fff" stroke="#efd5dd"/><text x="162" y="765" class="sans muted label">RESULTADO</text><text x="162" y="805" class="serif ink" font-size="31">1.200 cm</text><text x="367" y="805" class="sans" fill="#d37f94" font-size="22">♡</text>
+  <!-- notes -->
+  <text x="518" y="259" class="serif ink" font-size="34">Notas que florecen</text><text x="520" y="289" class="sans muted small">Pequeñas ideas, a tu manera.</text>
+  <rect x="1093" y="236" width="231" height="42" rx="21" fill="#fff" stroke="#e6d9ef"/><text x="1110" y="263" class="sans muted small">Todas las categorías　⌄</text>
+  <rect x="518" y="319" width="806" height="132" rx="19" fill="#fff" stroke="#eadfed"/>
+  <rect x="536" y="337" width="225" height="96" rx="13" fill="#fdf8fb" stroke="#f0dce7"/><text x="552" y="363" class="sans muted label">NUEVA NOTA</text><text x="552" y="393" class="sans muted small">¿Qué querés recordar?</text><path d="M552 410h190" stroke="#eadfe9"/>
+  <rect x="777" y="337" width="200" height="96" rx="13" fill="#fff" stroke="#eee4ef"/><text x="794" y="363" class="sans muted label">CATEGORÍA</text><rect x="794" y="376" width="166" height="39" rx="10" fill="#fff" stroke="#e5d9ea"/><circle cx="811" cy="395" r="5" fill="#eaa1b4"/><text x="824" y="400" class="sans ink small">Ideas</text><text x="943" y="400" class="sans muted small">⌄</text>
+  <rect x="993" y="337" width="313" height="96" rx="13" fill="#fff" stroke="#eee4ef"/><text x="1011" y="363" class="sans muted label">TU TABLERO</text><text x="1011" y="396" class="sans muted small">Se guarda en este dispositivo</text><rect x="1175" y="377" width="113" height="40" rx="12" fill="#e996a8"/><text x="1190" y="402" class="sans" fill="#fff" font-size="14" font-weight="700">+ Agregar</text>
+  <text x="520" y="492" class="sans muted label">IDEAS · 2</text>
+  <g filter="url(#shadow)"><path d="M518 520h245l10 12v216a15 15 0 0 1-15 15H533a15 15 0 0 1-15-15z" fill="#fff1f3"/><path d="M518 520h245l10 12v216a15 15 0 0 1-15 15H533a15 15 0 0 1-15-15z" fill="none" stroke="#f3d3dc"/><circle cx="725" cy="546" r="12" fill="#f6d5dc"/><text x="554" y="570" class="sans" fill="#c47e90" font-size="12" font-weight="700" letter-spacing="1">IDEAS</text><text x="554" y="612" class="serif ink" font-size="23">Repasar en grupo</text><text x="554" y="643" class="sans muted small">Llevar preguntas de historia</text><text x="554" y="665" class="sans muted small">para la próxima reunión.</text><text x="554" y="723" class="sans muted" font-size="12">hoy · 10:42</text><text x="705" y="723" class="sans" fill="#a88dac" font-size="14">✎　×</text>
+  <path d="M799 520h245l10 12v216a15 15 0 0 1-15 15H814a15 15 0 0 1-15-15z" fill="#f2edfb" stroke="#dfd4f0"/><circle cx="1006" cy="546" r="12" fill="#e3d8f2"/><text x="835" y="570" class="sans" fill="#927db1" font-size="12" font-weight="700" letter-spacing="1">ESTUDIO</text><text x="835" y="612" class="serif ink" font-size="23">Fórmula de velocidad</text><text x="835" y="649" class="sans ink body">distancia ÷ tiempo</text><text x="835" y="723" class="sans muted" font-size="12">ayer · 18:15</text><text x="986" y="723" class="sans" fill="#a88dac" font-size="14">✎　×</text>
+  <path d="M1080 520h229l10 12v216a15 15 0 0 1-15 15h-209a15 15 0 0 1-15-15z" fill="#fff7e9" stroke="#f1e4c9"/><circle cx="1270" cy="546" r="12" fill="#f5e6c5"/><text x="1115" y="570" class="sans" fill="#b28d51" font-size="12" font-weight="700" letter-spacing="1">CUENTAS</text><text x="1115" y="612" class="serif ink" font-size="23">12 m = 1.200 cm</text><text x="1115" y="645" class="sans muted small">Conversión guardada ✦</text><text x="1115" y="723" class="sans muted" font-size="12">hoy · 10:45</text><text x="1254" y="723" class="sans" fill="#a88dac" font-size="14">✎　×</text></g>
+  <path d="M522 810c115 18 222 18 318 0" fill="none" stroke="#d7c4e6" stroke-width="2" stroke-dasharray="4 8"/><text x="520" y="850" class="serif muted" font-size="18">Cada idea tiene su lugar.</text><text x="1274" y="849" class="sans" fill="#d88fa0" font-size="24">✿</text>
+  <text x="111" y="914" class="sans muted" font-size="12">PIZARRÓN DE ESTUDIO　·　BOCETO DE INTERFAZ</text><text x="1261" y="914" class="sans muted" font-size="12">01 / 01</text>
+</svg>
