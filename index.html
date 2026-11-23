@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5edf8">
+    <meta name="description" content="Un espacio creativo para guardar notas de estudio y hacer conversiones de unidades.">
+    <title>Pizarrón de estudio</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="page-decoration decoration-one" aria-hidden="true"></div>
+    <div class="page-decoration decoration-two" aria-hidden="true"></div>
+    <main class="app-shell">
+      <header class="site-header">
+        <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="heading-row">
+          <div>
+            <p class="eyebrow">TU RINCÓN DE ESTUDIO</p>
+            <h1>Pizarrón de estudio</h1>
+            <p class="subtitle">Un rincón para pensar, anotar y resolver.</p>
+          </div>
+          <span class="header-stamp"><span aria-hidden="true">✿</span> un espacio creativo</span>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="converter-panel" aria-labelledby="converter-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">PEQUEÑAS CUENTAS</p>
+              <h2 id="converter-title">Conversor</h2>
+              <p class="panel-intro">Las cuentas también van acá.</p>
+            </div>
+            <span class="flower-badge" aria-hidden="true">↗</span>
+          </div>
+          <form id="conversion-form" novalidate>
+            <label for="tipo-conversion">Tipo de conversión</label>
+            <select id="tipo-conversion" name="tipo-conversion">
+              <option value="longitud">Longitud</option>
+              <option value="peso">Peso</option>
+              <option value="temperatura">Temperatura</option>
+            </select>
+
+            <label for="valor-origen">Valor</label>
+            <input id="valor-origen" name="valor-origen" type="number" step="any" inputmode="decimal" placeholder="Escribí un valor" aria-describedby="conversion-message">
+
+            <div class="unit-row">
+              <div class="field-group">
+                <label for="unidad-origen">De</label>
+                <select id="unidad-origen" name="unidad-origen"></select>
+              </div>
+              <span class="unit-arrow" aria-hidden="true">→</span>
+              <div class="field-group">
+                <label for="unidad-destino">A</label>
+                <select id="unidad-destino" name="unidad-destino"></select>
+              </div>
+            </div>
+            <button class="button button-convert" id="convertir-unidad" type="submit">Convertir <span aria-hidden="true">✦</span></button>
+          </form>
+          <p id="conversion-message" class="status-message" role="status" aria-live="polite"></p>
+          <section class="result-card" aria-labelledby="result-title">
+            <p class="eyebrow" id="result-title">RESULTADO</p>
+            <output id="resultado-conversion" for="valor-origen unidad-origen unidad-destino">Todavía no hay resultado</output>
+            <button id="guardar-resultado" class="save-result" type="button" disabled>Guardar como nota <span aria-hidden="true">♡</span></button>
+          </section>
+        </aside>
+
+        <section class="notes-area" aria-labelledby="notes-title">
+          <div class="notes-heading">
+            <div>
+              <p class="eyebrow">IDEAS, APUNTES Y CUENTAS</p>
+              <h2 id="notes-title">Notas que florecen</h2>
+              <p class="panel-intro">Pequeñas ideas, a tu manera.</p>
+            </div>
+            <label class="filter-control" for="filtro-categoria">
+              <span class="sr-only">Filtrar notas por categoría</span>
+              <select id="filtro-categoria" name="filtro-categoria" aria-label="Filtrar notas por categoría">
+                <option value="todas">Todas las categorías</option>
+              </select>
+            </label>
+          </div>
+
+          <form id="nota-form" class="note-composer" novalidate>
+            <div class="note-input-wrap">
+              <label class="eyebrow" for="texto-nota" id="note-form-title">NUEVA NOTA</label>
+              <textarea id="texto-nota" name="texto-nota" rows="2" maxlength="500" placeholder="¿Qué querés recordar?" required aria-describedby="note-message"></textarea>
+            </div>
+            <div class="category-input-wrap">
+              <label class="eyebrow" for="categoria-nota">CATEGORÍA</label>
+              <select id="categoria-nota" name="categoria-nota">
+                <option value="Ideas">Ideas</option>
+                <option value="Estudio">Estudio</option>
+                <option value="Cuentas">Cuentas</option>
+                <option value="Recordatorios">Recordatorios</option>
+              </select>
+            </div>
+            <button class="button button-add" id="agregar-nota" type="submit"><span aria-hidden="true">＋</span> Agregar</button>
+            <button class="button button-cancel" id="cancelar-edicion" type="button" hidden>Cancelar</button>
+          </form>
+          <p class="status-message note-status" id="note-message" role="status" aria-live="polite"></p>
+
+          <div class="board-label-row">
+            <h3 id="board-label">TU TABLERO</h3>
+            <p><span class="tiny-sparkle" aria-hidden="true">✦</span> Se guarda en este dispositivo</p>
+          </div>
+          <div id="tablero-notas" class="notes-grid" aria-live="polite" aria-label="Tablero de notas"></div>
+          <p id="empty-state" class="empty-state" hidden>No hay notas en esta categoría todavía. ¡Podés crear la primera!</p>
+          <p class="closing-note">Cada idea tiene su lugar. <span aria-hidden="true">✿</span></p>
+        </section>
+      </div>
+      <footer class="site-footer"><span>PIZARRÓN DE ESTUDIO</span><span>Hecho para aprender con calma <span aria-hidden="true">♡</span></span></footer>
+    </main>
+    <div id="screen-reader-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
