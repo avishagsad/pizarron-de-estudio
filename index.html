@@ -3,115 +3,137 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f5edf8">
-    <meta name="description" content="Un espacio creativo para guardar notas de estudio y hacer conversiones de unidades.">
-    <title>Pizarrón de estudio</title>
+    <meta name="theme-color" content="#f8f4f7">
+    <meta name="description" content="Un pizarrón de estudio para guardar ideas, apuntes y conversiones en un solo lugar.">
+    <title>Pizarrón de estudio · Club de estudio</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
   </head>
   <body>
-    <div class="page-decoration decoration-one" aria-hidden="true"></div>
-    <div class="page-decoration decoration-two" aria-hidden="true"></div>
     <main class="app-shell">
-      <header class="site-header">
-        <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
-        <div class="heading-row">
-          <div>
-            <p class="eyebrow">TU RINCÓN DE ESTUDIO</p>
-            <h1>Pizarrón de estudio</h1>
-            <p class="subtitle">Un rincón para pensar, anotar y resolver.</p>
-          </div>
-          <span class="header-stamp"><span aria-hidden="true">✿</span> un espacio creativo</span>
-        </div>
+      <header class="topbar" aria-label="Identidad del espacio">
+        <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>mi espacio de estudio · club de estudio</span>
+        <span class="topbar-flower" aria-hidden="true">✿</span>
       </header>
 
-      <div class="workspace">
-        <aside class="converter-panel" aria-labelledby="converter-title">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">PEQUEÑAS CUENTAS</p>
-              <h2 id="converter-title">Conversor</h2>
-              <p class="panel-intro">Las cuentas también van acá.</p>
-            </div>
-            <span class="flower-badge" aria-hidden="true">↗</span>
+      <div class="page-content">
+        <section class="hero" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow">un rincón para aprender a tu manera</p>
+            <h1 id="page-title">Pizarrón <em>de estudio</em></h1>
+            <p class="hero-copy">Ideas, apuntes y pequeños cálculos, todo en un mismo lugar.</p>
           </div>
-          <form id="conversion-form" novalidate>
-            <label for="tipo-conversion">Tipo de conversión</label>
-            <select id="tipo-conversion" name="tipo-conversion">
-              <option value="longitud">Longitud</option>
-              <option value="peso">Peso</option>
-              <option value="temperatura">Temperatura</option>
-            </select>
+          <div class="hero-stamp" aria-label="Tu rincón creativo"><span aria-hidden="true">✿</span> tu rincón creativo</div>
+        </section>
 
-            <label for="valor-origen">Valor</label>
-            <input id="valor-origen" name="valor-origen" type="number" step="any" inputmode="decimal" placeholder="Escribí un valor" aria-describedby="conversion-message">
-
-            <div class="unit-row">
-              <div class="field-group">
-                <label for="unidad-origen">De</label>
-                <select id="unidad-origen" name="unidad-origen"></select>
-              </div>
-              <span class="unit-arrow" aria-hidden="true">→</span>
-              <div class="field-group">
-                <label for="unidad-destino">A</label>
-                <select id="unidad-destino" name="unidad-destino"></select>
+        <section class="workspace" aria-label="Crear notas y convertir unidades">
+          <section class="panel composer-panel" aria-labelledby="composer-title">
+            <div class="section-heading">
+              <span class="section-mark mark-rose" aria-hidden="true">✎</span>
+              <div>
+                <h2 id="composer-title">Una idea para guardar</h2>
+                <p>Escribí una nota y elegí su colorcito.</p>
               </div>
             </div>
-            <button class="button button-convert" id="convertir-unidad" type="submit">Convertir <span aria-hidden="true">✦</span></button>
-          </form>
-          <p id="conversion-message" class="status-message" role="status" aria-live="polite"></p>
-          <section class="result-card" aria-labelledby="result-title">
-            <p class="eyebrow" id="result-title">RESULTADO</p>
-            <output id="resultado-conversion" for="valor-origen unidad-origen unidad-destino">Todavía no hay resultado</output>
-            <button id="guardar-resultado" class="save-result" type="button" disabled>Guardar como nota <span aria-hidden="true">♡</span></button>
+            <form id="note-form" class="note-form">
+              <label class="visually-hidden" for="texto-nota">Texto de la nota</label>
+              <textarea id="texto-nota" name="texto-nota" rows="3" maxlength="500" placeholder="¿Qué querés recordar?" required></textarea>
+              <div class="form-actions">
+                <label class="select-wrap category-select">
+                  <span class="visually-hidden">Categoría de la nota</span>
+                  <span class="category-dot" aria-hidden="true"></span>
+                  <select id="categoria-nota" name="categoria-nota" aria-label="Categoría de la nota">
+                    <option value="ideas">Ideas</option>
+                    <option value="pendientes">Pendientes</option>
+                    <option value="calculos">Cálculos</option>
+                    <option value="preguntas">Preguntas</option>
+                    <option value="apuntes">Apuntes</option>
+                  </select>
+                </label>
+                <button id="agregar-nota" class="button button-primary" type="submit"><span aria-hidden="true">＋</span> Agregar nota</button>
+              </div>
+            </form>
           </section>
-        </aside>
 
-        <section class="notes-area" aria-labelledby="notes-title">
-          <div class="notes-heading">
-            <div>
-              <p class="eyebrow">IDEAS, APUNTES Y CUENTAS</p>
-              <h2 id="notes-title">Notas que florecen</h2>
-              <p class="panel-intro">Pequeñas ideas, a tu manera.</p>
+          <section class="panel converter-panel" aria-labelledby="converter-title">
+            <div class="section-heading">
+              <span class="section-mark mark-lilac" aria-hidden="true">↗</span>
+              <div>
+                <h2 id="converter-title">Mini conversor</h2>
+                <p>Un cálculo rápido para seguir estudiando.</p>
+              </div>
             </div>
-            <label class="filter-control" for="filtro-categoria">
-              <span class="sr-only">Filtrar notas por categoría</span>
-              <select id="filtro-categoria" name="filtro-categoria" aria-label="Filtrar notas por categoría">
+            <form id="converter-form" class="converter-form" novalidate>
+              <label class="visually-hidden" for="tipo-conversion">Tipo de conversión</label>
+              <select id="tipo-conversion" name="tipo-conversion">
+                <option value="longitud">Longitud</option>
+                <option value="peso">Peso</option>
+                <option value="temperatura">Temperatura</option>
+              </select>
+              <div class="conversion-row">
+                <label class="visually-hidden" for="valor-origen">Valor a convertir</label>
+                <input id="valor-origen" name="valor-origen" type="number" step="any" inputmode="decimal" placeholder="Valor" aria-describedby="conversion-message">
+                <label class="visually-hidden" for="unidad-origen">Unidad de origen</label>
+                <select id="unidad-origen" name="unidad-origen" aria-label="Unidad de origen"></select>
+                <span class="conversion-arrow" aria-hidden="true">→</span>
+                <label class="visually-hidden" for="unidad-destino">Unidad de destino</label>
+                <select id="unidad-destino" name="unidad-destino" aria-label="Unidad de destino"></select>
+              </div>
+              <button id="convertir-unidad" class="button button-convert" type="submit">Convertir unidades</button>
+              <div class="conversion-output" aria-live="polite" aria-atomic="true">
+                <p id="resultado-conversion" class="conversion-result">El resultado aparece acá.</p>
+                <button id="guardar-resultado" class="save-result" type="button" disabled>Guardar como nota <span aria-hidden="true">↗</span></button>
+              </div>
+              <p id="conversion-message" class="form-message" role="status"></p>
+            </form>
+          </section>
+        </section>
+
+        <section class="board-section" aria-labelledby="board-title">
+          <div class="board-heading">
+            <div class="section-heading board-title-group">
+              <span class="section-mark mark-peach" aria-hidden="true">▧</span>
+              <div>
+                <h2 id="board-title">El tablero</h2>
+                <p id="note-count">Tus apuntes, a mano y en orden.</p>
+              </div>
+            </div>
+            <label class="filter-wrap">
+              <span class="visually-hidden">Filtrar notas por categoría</span>
+              <select id="filtro-categoria" aria-label="Filtrar notas por categoría">
                 <option value="todas">Todas las categorías</option>
+                <option value="ideas">Ideas</option>
+                <option value="pendientes">Pendientes</option>
+                <option value="calculos">Cálculos</option>
+                <option value="preguntas">Preguntas</option>
+                <option value="apuntes">Apuntes</option>
               </select>
             </label>
           </div>
-
-          <form id="nota-form" class="note-composer" novalidate>
-            <div class="note-input-wrap">
-              <label class="eyebrow" for="texto-nota" id="note-form-title">NUEVA NOTA</label>
-              <textarea id="texto-nota" name="texto-nota" rows="2" maxlength="500" placeholder="¿Qué querés recordar?" required aria-describedby="note-message"></textarea>
-            </div>
-            <div class="category-input-wrap">
-              <label class="eyebrow" for="categoria-nota">CATEGORÍA</label>
-              <select id="categoria-nota" name="categoria-nota">
-                <option value="Ideas">Ideas</option>
-                <option value="Estudio">Estudio</option>
-                <option value="Cuentas">Cuentas</option>
-                <option value="Recordatorios">Recordatorios</option>
-              </select>
-            </div>
-            <button class="button button-add" id="agregar-nota" type="submit"><span aria-hidden="true">＋</span> Agregar</button>
-            <button class="button button-cancel" id="cancelar-edicion" type="button" hidden>Cancelar</button>
-          </form>
-          <p class="status-message note-status" id="note-message" role="status" aria-live="polite"></p>
-
-          <div class="board-label-row">
-            <h3 id="board-label">TU TABLERO</h3>
-            <p><span class="tiny-sparkle" aria-hidden="true">✦</span> Se guarda en este dispositivo</p>
-          </div>
-          <div id="tablero-notas" class="notes-grid" aria-live="polite" aria-label="Tablero de notas"></div>
-          <p id="empty-state" class="empty-state" hidden>No hay notas en esta categoría todavía. ¡Podés crear la primera!</p>
-          <p class="closing-note">Cada idea tiene su lugar. <span aria-hidden="true">✿</span></p>
+          <div id="tablero-notas" class="notes-grid" aria-live="polite" aria-relevant="additions removals"></div>
+          <p id="empty-state" class="empty-state" hidden><span aria-hidden="true">✿</span><br>Este espacio todavía está en blanco.<br>Agregá una nota y empezá tu colección.</p>
         </section>
+
+        <footer class="page-footer">un espacio para pensar bonito <span aria-hidden="true">✿</span></footer>
       </div>
-      <footer class="site-footer"><span>PIZARRÓN DE ESTUDIO</span><span>Hecho para aprender con calma <span aria-hidden="true">♡</span></span></footer>
     </main>
-    <div id="screen-reader-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <dialog id="edit-dialog" class="edit-dialog" aria-labelledby="edit-title">
+      <form id="edit-form" method="dialog">
+        <div class="section-heading">
+          <span class="section-mark mark-rose" aria-hidden="true">✎</span>
+          <div><h2 id="edit-title">Editar nota</h2><p>Un pequeño ajuste también cuenta.</p></div>
+        </div>
+        <label for="edit-text" class="field-label">Texto</label>
+        <textarea id="edit-text" maxlength="500" rows="5" required></textarea>
+        <label for="edit-category" class="field-label">Categoría</label>
+        <select id="edit-category">
+          <option value="ideas">Ideas</option><option value="pendientes">Pendientes</option><option value="calculos">Cálculos</option><option value="preguntas">Preguntas</option><option value="apuntes">Apuntes</option>
+        </select>
+        <div class="dialog-actions"><button id="cancel-edit" class="button button-quiet" type="button">Cancelar</button><button class="button button-primary" type="submit">Guardar cambios</button></div>
+      </form>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

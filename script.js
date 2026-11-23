@@ -2,23 +2,25 @@
   'use strict';
 
   const STORAGE_KEY = 'pizarron-estudio-notas-v1';
-  const NOTE_COLORS = ['#fff1f3', '#f2edfb', '#fff7e9'];
+  const CATEGORY_LABELS = {
+    ideas: 'Ideas', pendientes: 'Pendientes', calculos: 'Cálculos',
+    preguntas: 'Preguntas', apuntes: 'Apuntes'
+  };
   const UNITS = {
     longitud: {
-      m: { label: 'metros (m)', factor: 1 },
-      km: { label: 'kilómetros (km)', factor: 1000 },
-      cm: { label: 'centímetros (cm)', factor: 0.01 },
-      mm: { label: 'milímetros (mm)', factor: 0.001 },
-      mi: { label: 'millas (mi)', factor: 1609.344 },
-      ft: { label: 'pies (ft)', factor: 0.3048 },
-      in: { label: 'pulgadas (in)', factor: 0.0254 }
+      mm: { label: 'Milímetros (mm)', factor: 0.001 },
+      cm: { label: 'Centímetros (cm)', factor: 0.01 },
+      m: { label: 'Metros (m)', factor: 1 },
+      km: { label: 'Kilómetros (km)', factor: 1000 },
+      in: { label: 'Pulgadas (in)', factor: 0.0254 },
+      ft: { label: 'Pies (ft)', factor: 0.3048 }
     },
     peso: {
-      kg: { label: 'kilogramos (kg)', factor: 1 },
-      g: { label: 'gramos (g)', factor: 0.001 },
-      mg: { label: 'miligramos (mg)', factor: 0.000001 },
-      lb: { label: 'libras (lb)', factor: 0.45359237 },
-      oz: { label: 'onzas (oz)', factor: 0.028349523125 }
+      mg: { label: 'Miligramos (mg)', factor: 0.001 },
+      g: { label: 'Gramos (g)', factor: 1 },
+      kg: { label: 'Kilogramos (kg)', factor: 1000 },
+      oz: { label: 'Onzas (oz)', factor: 28.349523125 },
+      lb: { label: 'Libras (lb)', factor: 453.59237 }
     },
     temperatura: {
       c: { label: 'Celsius (°C)' },
@@ -26,35 +28,43 @@
       k: { label: 'Kelvin (K)' }
     }
   };
-  const CATEGORY_COLORS = { Ideas: '#e996a8', Estudio: '#a48ac1', Cuentas: '#d5a655', Recordatorios: '#dc8c78' };
+  const PALETTE_CLASSES = ['tilt-left', 'tilt-right', 'tilt-straight'];
+  const elements = {
+    noteForm: document.querySelector('#note-form'),
+    noteText: document.querySelector('#texto-nota'),
+    noteCategory: document.querySelector('#categoria-nota'),
+    board: document.querySelector('#tablero-notas'),
+    filter: document.querySelector('#filtro-categoria'),
+    empty: document.querySelector('#empty-state'),
+    noteCount: document.querySelector('#note-count'),
+    converterForm: document.querySelector('#converter-form'),
+    conversionType: document.querySelector('#tipo-conversion'),
+    value: document.querySelector('#valor-origen'),
+    from: document.querySelector('#unidad-origen'),
+    to: document.querySelector('#unidad-destino'),
+    result: document.querySelector('#resultado-conversion'),
+    conversionMessage: document.querySelector('#conversion-message'),
+    saveConversion: document.querySelector('#guardar-resultado'),
+    dialog: document.querySelector('#edit-dialog'),
+    editForm: document.querySelector('#edit-form'),
+    editText: document.querySelector('#edit-text'),
+    editCategory: document.querySelector('#edit-category'),
+    cancelEdit: document.querySelector('#cancel-edit'),
+    toast: document.querySelector('#toast')
+  };
 
-  const $ = (id) => document.getElementById(id);
-  const form = $('nota-form');
-  const noteText = $('texto-nota');
-  const noteCategory = $('categoria-nota');
-  const board = $('tablero-notas');
-  const filter = $('filtro-categoria');
-  const noteMessage = $('note-message');
-  const conversionForm = $('conversion-form');
-  const conversionType = $('tipo-conversion');
-  const sourceUnit = $('unidad-origen');
-  const targetUnit = $('unidad-destino');
-  const sourceValue = $('valor-origen');
-  const resultOutput = $('resultado-conversion');
-  const conversionMessage = $('conversion-message');
-  const saveResultButton = $('guardar-resultado');
-  const emptyState = $('empty-state');
-  const announcement = $('screen-reader-announcement');
-  let notes = loadNotes();
+  let notes = readNotes();
   let editingId = null;
-  let lastConversion = null;
+  let latestConversion = null;
+  let toastTimer;
 
-  function loadNotes() {
+  function readNotes() {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       if (!Array.isArray(saved)) return [];
-      return saved.filter((note) => note && typeof note.id === 'string' && typeof note.text === 'string' && typeof note.category === 'string');
+      return saved.filter((note) => note && typeof note.id === 'string' && typeof note.text === 'string' && CATEGORY_LABELS[note.category]);
     } catch {
+      showToast('No se pudieron leer las notas guardadas. Podés empezar una nueva.');
       return [];
     }
   }
@@ -64,269 +74,252 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
       return true;
     } catch {
-      noteMessage.textContent = 'No se pudieron guardar los cambios en este dispositivo. Revisá el espacio disponible del navegador.';
+      showToast('El navegador no pudo guardar los cambios. Revisá el espacio disponible.');
       return false;
     }
   }
 
-  function announce(message) {
-    announcement.textContent = '';
-    window.setTimeout(() => { announcement.textContent = message; }, 20);
+  function makeId() {
+    return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
-  function refreshFilterOptions() {
-    const selected = filter.value || 'todas';
-    const categories = [...new Set([...Array.from(noteCategory.options, (option) => option.value), ...notes.map((note) => note.category)])]
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b, 'es'));
-    filter.replaceChildren(new Option('Todas las categorías', 'todas'));
-    for (const category of categories) filter.add(new Option(category, category));
-    filter.value = categories.includes(selected) || selected === 'todas' ? selected : 'todas';
+  function renderNotes() {
+    const selectedCategory = elements.filter.value;
+    const visibleNotes = notes.filter((note) => selectedCategory === 'todas' || note.category === selectedCategory);
+    elements.board.replaceChildren();
+    visibleNotes.forEach((note, index) => {
+      const card = document.createElement('article');
+      card.className = `note-card ${PALETTE_CLASSES[index % PALETTE_CLASSES.length]}`;
+      card.dataset.category = note.category;
+
+      const top = document.createElement('div');
+      top.className = 'note-card-top';
+      const category = document.createElement('span');
+      category.className = 'note-category';
+      category.textContent = CATEGORY_LABELS[note.category];
+      const tools = document.createElement('div');
+      tools.className = 'note-tools';
+      tools.append(
+        makeIconButton('Editar nota', '✎', () => openEditor(note.id)),
+        makeIconButton('Eliminar nota', '×', () => deleteNote(note.id))
+      );
+      top.append(category, tools);
+
+      const text = document.createElement('p');
+      text.className = 'note-text';
+      text.textContent = note.text;
+      const date = document.createElement('p');
+      date.className = 'note-date';
+      date.textContent = formatDate(note.updatedAt || note.createdAt);
+      card.append(top, text, date);
+      elements.board.append(card);
+    });
+
+    elements.empty.hidden = visibleNotes.length > 0;
+    elements.board.hidden = visibleNotes.length === 0;
+    if (notes.length === 0) {
+      elements.empty.innerHTML = '<span aria-hidden="true">✿</span><br>Este espacio todavía está en blanco.<br>Agregá una nota y empezá tu colección.';
+      elements.noteCount.textContent = 'Tus apuntes, a mano y en orden.';
+    } else if (visibleNotes.length === 0) {
+      elements.empty.innerHTML = '<span aria-hidden="true">✿</span><br>No hay notas en esta categoría todavía.<br>Probá con otro filtro o agregá una nueva.';
+      elements.noteCount.textContent = `Mostrando 0 de ${notes.length} ${notes.length === 1 ? 'nota' : 'notas'}.`;
+    } else {
+      elements.noteCount.textContent = `${visibleNotes.length} ${visibleNotes.length === 1 ? 'nota' : 'notas'}${selectedCategory === 'todas' ? ' en tu tablero.' : ` en ${CATEGORY_LABELS[selectedCategory].toLowerCase()}.`}`;
+    }
+  }
+
+  function makeIconButton(label, symbol, action) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'icon-button';
+    button.setAttribute('aria-label', label);
+    button.textContent = symbol;
+    button.addEventListener('click', action);
+    return button;
   }
 
   function formatDate(value) {
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return 'recién';
+    if (Number.isNaN(date.valueOf())) return 'recién';
     return new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(date);
   }
 
-  function renderNotes() {
-    refreshFilterOptions();
-    const visibleNotes = notes
-      .filter((note) => filter.value === 'todas' || note.category === filter.value)
-      .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
-    board.replaceChildren();
-    emptyState.hidden = visibleNotes.length !== 0;
-
-    for (const note of visibleNotes) {
-      const card = document.createElement('article');
-      card.className = 'note-card';
-      card.style.setProperty('--note-accent', CATEGORY_COLORS[note.category] || NOTE_COLORS[0]);
-
-      const category = document.createElement('p');
-      category.className = 'note-category';
-      category.textContent = note.category;
-      const content = document.createElement('p');
-      content.className = 'note-text';
-      content.textContent = note.text;
-      const meta = document.createElement('div');
-      meta.className = 'note-meta';
-      const date = document.createElement('time');
-      date.dateTime = note.updatedAt || note.createdAt;
-      date.textContent = formatDate(note.updatedAt || note.createdAt);
-      const actions = document.createElement('div');
-      actions.className = 'note-actions';
-
-      const editButton = document.createElement('button');
-      editButton.type = 'button';
-      editButton.className = 'note-action';
-      editButton.textContent = 'Editar';
-      editButton.setAttribute('aria-label', `Editar nota: ${note.text.slice(0, 45)}`);
-      editButton.addEventListener('click', () => startEditing(note));
-
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.className = 'note-action';
-      deleteButton.textContent = 'Borrar';
-      deleteButton.setAttribute('aria-label', `Borrar nota: ${note.text.slice(0, 45)}`);
-      deleteButton.addEventListener('click', () => deleteNote(note.id));
-
-      actions.append(editButton, deleteButton);
-      meta.append(date, actions);
-      card.append(category, content, meta);
-      board.append(card);
-    }
-  }
-
-  function startEditing(note) {
-    editingId = note.id;
-    noteText.value = note.text;
-    if (![...noteCategory.options].some((option) => option.value === note.category)) {
-      noteCategory.add(new Option(note.category, note.category));
-    }
-    noteCategory.value = note.category;
-    $('note-form-title').textContent = 'EDITAR NOTA';
-    $('agregar-nota').innerHTML = 'Guardar cambios <span aria-hidden="true">✦</span>';
-    $('cancelar-edicion').hidden = false;
-    noteText.focus();
-    noteMessage.textContent = 'Estás editando esta nota.';
-  }
-
-  function resetEditor() {
-    editingId = null;
-    form.reset();
-    $('note-form-title').textContent = 'NUEVA NOTA';
-    $('agregar-nota').innerHTML = '<span aria-hidden="true">＋</span> Agregar';
-    $('cancelar-edicion').hidden = true;
-  }
-
-  function saveNote(text, category, { announceResult = true } = {}) {
-    const wasEditing = Boolean(editingId);
-    const previousNotes = JSON.stringify(notes);
+  function addNote(text, category) {
+    const normalized = text.trim();
+    if (!normalized) return false;
     const now = new Date().toISOString();
-    if (editingId) {
-      const existing = notes.find((note) => note.id === editingId);
-      if (existing) {
-        existing.text = text;
-        existing.category = category;
-        existing.updatedAt = now;
-      }
-    } else {
-      notes.unshift({ id: makeId(), text, category, createdAt: now, updatedAt: now });
-    }
-    const saved = persistNotes();
-    if (!saved) {
-      notes = JSON.parse(previousNotes);
-      renderNotes();
-      return false;
-    }
-    resetEditor();
-    noteMessage.textContent = wasEditing ? 'Nota actualizada.' : 'Nota guardada en tu tablero.';
-    filter.value = 'todas';
+    notes.unshift({ id: makeId(), text: normalized, category, createdAt: now, updatedAt: now });
+    persistNotes();
     renderNotes();
-    if (announceResult) announce('La nota se guardó en el pizarrón.');
     return true;
-  }
-
-  function makeId() {
-    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-    return `nota-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
   function deleteNote(id) {
     const note = notes.find((item) => item.id === id);
     if (!note) return;
     notes = notes.filter((item) => item.id !== id);
-    if (!persistNotes()) {
-      notes.push(note);
-      return;
-    }
-    if (editingId === id) resetEditor();
-    noteMessage.textContent = 'Nota eliminada.';
+    persistNotes();
     renderNotes();
-    announce('Nota eliminada.');
+    showToast('Nota eliminada del pizarrón.');
   }
 
-  function populateUnits({ reset = false } = {}) {
-    const type = conversionType.value;
-    const unitMap = UNITS[type];
-    const previousSource = reset ? '' : sourceUnit.value;
-    const previousTarget = reset ? '' : targetUnit.value;
-    sourceUnit.replaceChildren();
-    targetUnit.replaceChildren();
-    for (const [value, unit] of Object.entries(unitMap)) {
-      sourceUnit.add(new Option(unit.label, value));
-      targetUnit.add(new Option(unit.label, value));
+  function openEditor(id) {
+    const note = notes.find((item) => item.id === id);
+    if (!note) return;
+    editingId = id;
+    elements.editText.value = note.text;
+    elements.editCategory.value = note.category;
+    elements.dialog.showModal();
+    elements.editText.focus();
+  }
+
+  function refillUnits(keepSelection = false) {
+    const previousFrom = keepSelection ? elements.from.value : '';
+    const previousTo = keepSelection ? elements.to.value : '';
+    const units = UNITS[elements.conversionType.value];
+    for (const select of [elements.from, elements.to]) {
+      select.replaceChildren();
+      Object.entries(units).forEach(([value, unit]) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = unit.label;
+        select.append(option);
+      });
     }
-    sourceUnit.value = unitMap[previousSource] ? previousSource : Object.keys(unitMap)[0];
-    const secondUnit = Object.keys(unitMap)[1] || Object.keys(unitMap)[0];
-    targetUnit.value = unitMap[previousTarget] && previousTarget !== sourceUnit.value ? previousTarget : secondUnit;
-    clearConversionResult();
+    if (units[previousFrom]) elements.from.value = previousFrom;
+    if (units[previousTo]) elements.to.value = previousTo;
+    if (!keepSelection && elements.to.options.length > 1) elements.to.selectedIndex = 1;
+    clearConversion();
   }
 
-  function clearConversionResult() {
-    lastConversion = null;
-    resultOutput.textContent = 'Todavía no hay resultado';
-    saveResultButton.disabled = true;
-    conversionMessage.textContent = '';
+  function clearConversion() {
+    latestConversion = null;
+    elements.result.textContent = 'El resultado aparece acá.';
+    elements.saveConversion.disabled = true;
+    elements.conversionMessage.textContent = '';
+    elements.value.removeAttribute('aria-invalid');
   }
 
-  function toCanonical(value, unit, type) {
-    if (type !== 'temperatura') return value * UNITS[type][unit].factor;
-    if (unit === 'c') return value;
-    if (unit === 'f') return (value - 32) * 5 / 9;
-    return value - 273.15;
-  }
-
-  function fromCanonical(value, unit, type) {
-    if (type !== 'temperatura') return value / UNITS[type][unit].factor;
-    if (unit === 'c') return value;
-    if (unit === 'f') return value * 9 / 5 + 32;
-    return value + 273.15;
-  }
-
-  function getUnitSymbol(type, unit) {
-    const symbols = {
-      longitud: { m: 'm', km: 'km', cm: 'cm', mm: 'mm', mi: 'mi', ft: 'ft', in: 'in' },
-      peso: { kg: 'kg', g: 'g', mg: 'mg', lb: 'lb', oz: 'oz' },
-      temperatura: { c: '°C', f: '°F', k: 'K' }
+  function convertTemperature(value, from, to) {
+    const toCelsius = {
+      c: (number) => number,
+      f: (number) => (number - 32) * 5 / 9,
+      k: (number) => number - 273.15
     };
-    return symbols[type][unit];
+    const fromCelsius = {
+      c: (number) => number,
+      f: (number) => number * 9 / 5 + 32,
+      k: (number) => number + 273.15
+    };
+    return fromCelsius[to](toCelsius[from](value));
   }
 
-  function displayNumber(value) {
-    return new Intl.NumberFormat('es-AR', { maximumSignificantDigits: 10 }).format(value);
+  function convert(event) {
+    event.preventDefault();
+    clearConversion();
+    const value = elements.value.valueAsNumber;
+    if (elements.value.value.trim() === '' || !Number.isFinite(value)) {
+      elements.conversionMessage.textContent = 'Escribí un número válido para hacer la conversión.';
+      elements.value.setAttribute('aria-invalid', 'true');
+      elements.value.focus();
+      return;
+    }
+
+    const kind = elements.conversionType.value;
+    const from = elements.from.value;
+    const to = elements.to.value;
+    let converted;
+    if (kind === 'temperatura') {
+      const kelvin = from === 'k' ? value : convertTemperature(value, from, 'k');
+      if (kelvin < 0) {
+        elements.conversionMessage.textContent = 'La temperatura no puede ser menor al cero absoluto (−273,15 °C).';
+        elements.value.setAttribute('aria-invalid', 'true');
+        elements.value.focus();
+        return;
+      }
+      converted = convertTemperature(value, from, to);
+    } else {
+      const baseValue = value * UNITS[kind][from].factor;
+      converted = baseValue / UNITS[kind][to].factor;
+    }
+
+    if (!Number.isFinite(converted)) {
+      elements.conversionMessage.textContent = 'Ese valor es demasiado grande para convertirlo.';
+      return;
+    }
+    const formattedInput = formatNumber(value);
+    const formattedOutput = formatNumber(converted);
+    const sourceLabel = shortUnit(kind, from);
+    const targetLabel = shortUnit(kind, to);
+    const summary = `${formattedInput} ${sourceLabel} = ${formattedOutput} ${targetLabel}`;
+    elements.result.textContent = summary;
+    elements.saveConversion.disabled = false;
+    latestConversion = summary;
   }
 
-  conversionType.addEventListener('change', () => populateUnits({ reset: true }));
-  conversionForm.addEventListener('submit', (event) => {
+  function formatNumber(number) {
+    return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 8 }).format(number);
+  }
+
+  function shortUnit(kind, unit) {
+    if (kind === 'temperatura') return ({ c: '°C', f: '°F', k: 'K' })[unit];
+    return unit;
+  }
+
+  function showToast(message) {
+    if (!elements.toast) return;
+    elements.toast.textContent = message;
+    elements.toast.classList.add('is-visible');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => elements.toast.classList.remove('is-visible'), 2800);
+  }
+
+  elements.noteForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const rawValue = sourceValue.value.trim();
-    const value = Number(rawValue);
-    if (rawValue === '' || !Number.isFinite(value)) {
-      clearConversionResult();
-      conversionMessage.textContent = 'Escribí un valor numérico válido para convertir.';
-      sourceValue.focus();
-      return;
-    }
-
-    const type = conversionType.value;
-    const from = sourceUnit.value;
-    const to = targetUnit.value;
-    if (type === 'temperatura' && from === 'k' && value < 0) {
-      clearConversionResult();
-      conversionMessage.textContent = 'La temperatura en Kelvin no puede ser menor que 0 K.';
-      sourceValue.focus();
-      return;
-    }
-    const result = fromCanonical(toCanonical(value, from, type), to, type);
-    if (!Number.isFinite(result) || (type === 'temperatura' && to === 'k' && result < -1e-10)) {
-      clearConversionResult();
-      conversionMessage.textContent = 'Ese valor queda fuera del rango posible para esta conversión.';
-      return;
-    }
-
-    const safeResult = Object.is(result, -0) || Math.abs(result) < 1e-12 ? 0 : result;
-    const fromSymbol = getUnitSymbol(type, from);
-    const toSymbol = getUnitSymbol(type, to);
-    resultOutput.textContent = `${displayNumber(safeResult)} ${toSymbol}`;
-    conversionMessage.textContent = `${displayNumber(value)} ${fromSymbol} equivale a ${displayNumber(safeResult)} ${toSymbol}.`;
-    lastConversion = { text: `${displayNumber(value)} ${fromSymbol} = ${displayNumber(safeResult)} ${toSymbol}`, category: 'Cuentas' };
-    saveResultButton.disabled = false;
-    announce(`Resultado: ${displayNumber(safeResult)} ${toSymbol}.`);
-  });
-
-  saveResultButton.addEventListener('click', () => {
-    if (!lastConversion) return;
-    if (![...noteCategory.options].some((option) => option.value === lastConversion.category)) {
-      noteCategory.add(new Option(lastConversion.category, lastConversion.category));
-    }
-    noteCategory.value = lastConversion.category;
-    if (saveNote(lastConversion.text, lastConversion.category)) {
-      noteMessage.textContent = 'Conversión guardada como nota en Cuentas.';
-      filter.value = 'todas';
-      renderNotes();
+    if (addNote(elements.noteText.value, elements.noteCategory.value)) {
+      elements.noteText.value = '';
+      elements.noteText.focus();
+      showToast('Tu idea ya está en el pizarrón.');
     }
   });
 
-  form.addEventListener('submit', (event) => {
+  elements.filter.addEventListener('change', renderNotes);
+  elements.conversionType.addEventListener('change', () => refillUnits());
+  elements.converterForm.addEventListener('submit', convert);
+  elements.value.addEventListener('input', () => {
+    elements.conversionMessage.textContent = '';
+    elements.value.removeAttribute('aria-invalid');
+  });
+
+  elements.saveConversion.addEventListener('click', () => {
+    if (!latestConversion) return;
+    elements.noteText.value = latestConversion;
+    elements.noteCategory.value = 'calculos';
+    addNote(latestConversion, 'calculos');
+    elements.noteText.value = '';
+    showToast('Conversión guardada en la categoría Cálculos.');
+  });
+
+  elements.editForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const text = noteText.value.trim();
-    if (!text) {
-      noteMessage.textContent = 'Escribí algo en la nota antes de guardarla.';
-      noteText.focus();
-      return;
-    }
-    saveNote(text, noteCategory.value);
+    const note = notes.find((item) => item.id === editingId);
+    const text = elements.editText.value.trim();
+    if (!note || !text) return;
+    note.text = text;
+    note.category = elements.editCategory.value;
+    note.updatedAt = new Date().toISOString();
+    persistNotes();
+    renderNotes();
+    elements.dialog.close();
+    showToast('Cambios guardados.');
   });
 
-  $('cancelar-edicion').addEventListener('click', () => {
-    resetEditor();
-    noteMessage.textContent = 'Edición cancelada.';
-    noteText.focus();
+  elements.cancelEdit.addEventListener('click', () => elements.dialog.close());
+  elements.dialog.addEventListener('close', () => { editingId = null; });
+  elements.dialog.addEventListener('click', (event) => {
+    if (event.target === elements.dialog) elements.dialog.close();
   });
-  filter.addEventListener('change', renderNotes);
 
-  populateUnits();
+  refillUnits();
   renderNotes();
 })();
